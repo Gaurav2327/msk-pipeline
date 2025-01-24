@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "mybuc" {
-  bucket = "msk-plugin" 
+  bucket = "flink-gd-msk-plugin" 
 }
 
 resource "null_resource" "download_and_process" {
@@ -23,7 +23,7 @@ resource "null_resource" "download_and_process" {
 }
 
 resource "aws_s3_bucket_object" "upload_zipped_files" {
-  bucket     = resource.aws_s3_bucket.mybuc.name
+  bucket     = "flink-gd-msk-plugin"
   key        = "plugins/debezium-mysql-plugin.zip"
   source     = "/tmp/extracted_files/debezium-mysql-plugin.zip"
   acl        = "private"
