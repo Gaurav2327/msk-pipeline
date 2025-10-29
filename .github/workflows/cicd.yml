@@ -1,9 +1,6 @@
 name: Terraform Apply
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
@@ -25,11 +22,10 @@ jobs:
           terraform_version: 1.5.0
 
       - name: Configure AWS credentials using IAM Role
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
-          role-session-name: GitHubActions-TerraformDeploy
 
       - name: Verify AWS Identity
         run: aws sts get-caller-identity
