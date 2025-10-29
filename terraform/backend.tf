@@ -11,7 +11,7 @@ terraform {
     }
   }
   backend "s3" {
-    key     = "terraform/backend/aws-msk"
+    key     = "terraform/backend/aws-msk.tfstate"
     bucket  = "terraform-state-bucket-dops"
     encrypt = true
   }

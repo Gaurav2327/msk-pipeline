@@ -3,6 +3,6 @@ locals {
   default_tags = {
     resource = "msk"
     stack    = "github-resources"
-    repo_url = "https://github.com/Gaurav2327/msk-pipeline.git"
+    repo_url = "https://github.com/Gaurav2327/terraform-aws-msk-pipeline.git"
   }
 }
