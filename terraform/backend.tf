@@ -12,8 +12,7 @@ terraform {
   }
   backend "s3" {
     key     = "terraform/backend/aws-msk"
-    bucket  = "aws-kafka"
-    region  = local.region
+    bucket  = "terraform-state-bucket-dops"
     encrypt = true
   }
 }
