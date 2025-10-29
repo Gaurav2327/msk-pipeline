@@ -1,11 +1,14 @@
-variable "bucket" {
-    default = "flink-gd-msk-plugin"
-  
-}
-resource "aws_s3_bucket" "mybuc" {
-  bucket = var.bucket 
+resource "aws_s3_bucket" "msk_resources" {
+  bucket = var.bucket_name
+  tags   = merge(local.default_tags)
 }
 
+resource "aws_s3_bucket_versioning" "msk_resources" {
+  bucket = aws_s3_bucket.msk_resources.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
 
 resource "null_resource" "download_and_process" {
   provisioner "local-exec" {
@@ -27,8 +30,8 @@ resource "null_resource" "download_and_process" {
   }
 }
 
-resource "aws_s3_bucket_object" "upload_zipped_files" {
-  bucket     = var.bucket 
+resource "aws_s3_object" "upload_zipped_files" {
+  bucket     = var.bucket_name
   key        = "plugins/debezium-mysql-plugin.zip"
   source     = "/tmp/extracted_files/debezium-mysql-plugin.zip"
   acl        = "private"
