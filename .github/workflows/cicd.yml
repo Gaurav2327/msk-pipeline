@@ -31,6 +31,9 @@ jobs:
           aws-region: us-east-1
           role-session-name: GitHubActions-TerraformDeploy
 
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+
       - name: Initialize Terraform
         run: terraform init
 
