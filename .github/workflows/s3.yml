@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-
+      - terraform-msk
 permissions:
   id-token: write
   contents: read
