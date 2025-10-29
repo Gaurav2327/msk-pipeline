@@ -1,0 +1,72 @@
+name: Terraform Apply
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: Apply Terraform
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: Configure AWS credentials using IAM Role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+          role-session-name: GitHubActions-TerraformDeploy
+
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Validate Terraform Configuration
+        run: terraform validate
+
+      - name: Plan Terraform - Full Infrastructure
+        run: terraform plan -out=tfplan
+
+      - name: Create S3 Bucket
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Creating S3 Bucket..."
+          terraform apply -target=aws_s3_bucket.mybuc -auto-approve
+          echo "S3 Bucket created successfully"
+
+      - name: Download and Process Plugins
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Downloading and processing Debezium plugins..."
+          terraform apply -target=null_resource.download_and_process -auto-approve
+          echo "Plugins downloaded and processed successfully"
+
+      - name: Upload Files to S3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Uploading plugin files to S3..."
+          terraform apply -target=aws_s3_bucket_object.upload_zipped_files -auto-approve
+          echo "Files uploaded to S3 successfully"
+
+      - name: Apply Remaining Resources
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          echo "Applying any remaining Terraform resources..."
+          terraform apply -auto-approve
+          echo "All resources deployed successfully"
