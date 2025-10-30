@@ -9,6 +9,7 @@ resource "aws_security_group" "rds_security_group" {
     to_port         = 3306
     protocol        = "tcp"
     security_groups = [aws_security_group.connector_security_group.id]
+    description = "Allow MySQL traffic from Connector"
   }
 
   ingress {
@@ -16,6 +17,7 @@ resource "aws_security_group" "rds_security_group" {
     to_port         = 3306
     protocol        = "tcp"
     security_groups = [data.aws_security_group.vpc_sg.id]
+    description = "Allow MySQL traffic from VPC default SG for bastion host access"
   }
 
   # Allow all outbound traffic
@@ -46,21 +48,31 @@ resource "aws_security_group" "msk_security_group" {
     to_port         = 9092
     protocol        = "tcp"
     security_groups = [aws_security_group.connector_security_group.id]
+    description = "Allow MSK traffic from Connectors"
   }
 
   ingress {
     from_port       = 9092
     to_port         = 9092
     protocol        = "tcp"
-    security_groups = [data.aws_security_group.vpc_sg.id]
+    security_groups = [aws_security_group.rds_security_group.id]
+    description = "Allow MSK traffic from RDS SG"
   }
-
+  
+  ingress {
+    from_port       = 9092
+    to_port         = 9092
+    protocol        = "tcp"
+    security_groups = [data.aws_security_group.vpc_sg.id]
+    description = "Allow MSK traffic from VPC default SG for bastion host access"
+  }
+  
   # Allow all outbound traffic
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = []
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = merge(local.default_tags, {
