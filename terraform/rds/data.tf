@@ -26,6 +26,6 @@ data "aws_subnets" "public_subnets" {
 data "aws_security_group" "rds_sg" {
     filter {
         name   = "group-name"
-        values = ["db-sg"]
+        values = ["rds-sg"]
     }
 }

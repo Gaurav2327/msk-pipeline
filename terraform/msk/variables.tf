@@ -39,3 +39,41 @@ variable "ebs_volume_size" {
   description = "EBS volume size in GB for each broker node"
   type = number
 }
+
+variable "plugin_bucket" {
+  default = "aws-msk-resources-bucket"
+  description = "S3 bucket for MSK connector plugins"
+  type = string
+}
+
+## Variables for MSK Connector
+
+variable "kafkaconnect_version" {
+  default = "3.7.x"
+  description = "Kafka Connect version for the MSK Connector"
+  type = string  
+}
+
+variable "mcu_count" {
+  default = "2"
+  description = "Number of MCUs for the MSK Connector"
+  type = number
+}
+
+variable "worker_count" {
+  default = "1"
+  description = "Number of workers for the MSK Connector"
+  type = number
+}
+
+variable "client_authentication_type" {
+  default = "NONE"
+  description = "Client authentication type for the MSK Connector"
+  type = string
+}
+
+variable "encryption_type" {
+  default = "PLAINTEXT"
+  description = "Encryption type for the MSK Connector"
+  type = string
+}

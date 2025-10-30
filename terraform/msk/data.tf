@@ -26,7 +26,7 @@ data "aws_subnets" "public_subnets" {
 data "aws_security_group" "rds_sg" {
     filter {
         name   = "group-name"
-        values = ["db-sg"]
+        values = ["rds-sg"]
     }
 }
 
@@ -35,4 +35,21 @@ data "aws_security_group" "msk_sg" {
     name   = "group-name" # Exact match of the security group's name
     values = ["msk-sg"]
   }
+}
+
+data "aws_security_group" "msk_connector_sg" {
+  filter {
+    name   = "group-name" # Exact match of the security group's name
+    values = ["connector-sg"]
+  }
+  
+}
+
+data "aws_s3_bucket" "plugin_bucket" {
+  bucket = var.log_bucket  
+}
+
+data "aws_rds_cluster" "cdc_rds_cluster" {
+  cluster_identifier = "rds-cdc-cluster"
+  
 }

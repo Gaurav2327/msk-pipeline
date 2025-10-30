@@ -1,0 +1,110 @@
+#####################################
+########## Connector Config #########
+#####################################
+
+resource "aws_mskconnect_custom_plugin" "connector_plugin_debezium" {
+  name         = "${var.cluster_name}-connector-plugin"
+  content_type = "ZIP"
+  location {
+    s3 {
+      bucket_arn = data.aws_s3_bucket.plugin_bucket.arn
+      file_key   = "plugins/debezium-mysql-plugin.zip"
+    }
+  }
+}
+
+#####################################
+########## Worker Config #########
+#####################################
+
+resource "aws_mskconnect_worker_configuration" "connector_configuration" {
+    name = "${var.cluster_name}-worker-configuration"
+    description = "Worker configuration for MSK Connector"
+    properties_file_content = <<EOF
+    key.converter=org.apache.kafka.connect.storage.StringConverter
+    value.converter=org.apache.kafka.connect.storage.StringConverter
+EOF
+}
+
+######################################
+########## MSK Connector ############
+######################################
+
+resource "aws_mskconnect_connector" "msk_cdc_connector" {
+  name = "${var.cluster_name}-cdc-connector"
+
+  kafkaconnect_version = var.kafkaconnect_version
+
+  capacity {
+    provisioned_capacity {
+      mcu_count = var.mcu_count
+      worker_count = var.worker_count
+    }
+  }
+  connector_configuration = {
+    "connector.class" = "io.debezium.connector.mysql.MySqlConnector"    
+    "database.user" = "admin"
+    "database.server.id" = "906010"
+    "tasks.max" = "1"
+    "schema.history.internal.kafka.bootstrap.servers" = aws_msk_cluster.msk_cluster.bootstrap_brokers
+    "database.port" = "3306"
+    "include.schema.changes" = true
+    "topic.prefix" = "gaurav"
+    "schema.history.internal.kafka.topic" = "schemahistory.fullfillment"
+    "database.hostname" = data.aws_rds_cluster.cdc_rds_cluster.endpoint
+    "database.password" = "3qP6Qz!VJFlv6zvc]!*H3uL)~C~m"
+    "value.converter.schemas.enable" = false
+    "value.converter" = "org.apache.kafka.connect.json.JsonConverter"
+    "database.include.list" = "cdc"
+    "metrics.jmx.enabled" = "false"
+    "topic.creation.default.partitions" = "3"
+    "topic.creation.default.replication.factor" = "3"
+    "topic.creation.default.cleanup.policy" = "delete"
+  }
+
+  kafka_cluster {
+    apache_kafka_cluster {
+      bootstrap_servers = aws_msk_cluster.msk_cluster.bootstrap_brokers
+
+      vpc {
+        security_groups = [data.aws_security_group.msk_connector_sg.id]
+        subnets = [data.aws_subnets.public_subnets.ids[0], data.aws_subnets.public_subnets.ids[1], data.aws_subnets.public_subnets.ids[3]]
+      }
+    }
+  }
+
+  kafka_cluster_client_authentication {
+    authentication_type = var.client_authentication_type
+  }
+
+  kafka_cluster_encryption_in_transit {
+    encryption_type = var.encryption_type
+  }
+
+  plugin {
+    custom_plugin {
+      arn = aws_mskconnect_custom_plugin.connector_plugin_debezium.arn
+      revision = aws_mskconnect_custom_plugin.connector_plugin_debezium.latest_revision
+    }
+  }
+
+  service_execution_role_arn = aws_iam_role.msk_role.arn
+
+  log_delivery {
+    worker_log_delivery {
+      cloudwatch_logs {
+        enabled = true
+        log_group = aws_cloudwatch_log_group.msk_log_group.name
+      }
+    }
+  }
+
+  worker_configuration {
+    arn = aws_mskconnect_worker_configuration.connector_configuration.arn
+    revision = aws_mskconnect_worker_configuration.connector_configuration.latest_revision
+  }
+
+  tags = merge(local.default_tags,{
+    Name = "${var.cluster_name}-cdc-connector"
+  })
+}

@@ -42,13 +42,6 @@ output "security_group_id" {
   value = data.aws_security_group.vpc_sg.id
 }
 
-data "aws_security_group" "rds" {
-  filter {
-    name   = "group-name" # Exact match of the security group's name
-    values = ["db-sg"]
-  }
-}
-
 output "all_subnets" {
   value = data.aws_subnets.all_subnets.ids
 }
@@ -59,8 +52,4 @@ output "public_subnets" {
 
 output "private_subnets" {
   value = data.aws_subnets.private_subnets.ids
-}
-
-output "rds_sg" {
-  value = data.aws_security_group.rds.id
 }

@@ -3,27 +3,22 @@ resource "aws_cloudwatch_log_group" "msk_log_group" {
   retention_in_days = var.log_retention_in_days
 }
 
+####################################################
+########### Cluster Configurations #################
+####################################################
 resource "aws_msk_configuration" "cluster_configuration" {
   name          = "${var.cluster_name}-configuration"
   kafka_versions = [var.kafka_version]
   description   = "MSK cluster configuration"
   server_properties = <<EOF
 auto.create.topics.enable=true
-delete.topic.enable=true
-log.retention.hours=168
-min.insync.replicas=2
-num.partitions=1
-num.replica.fetchers=2
-num.io.threads=8
-num.network.threads=5
-num.replica.fetchers=2
-replica.lag.time.max.ms=30000
-socket.receive.buffer.bytes=102400
-socket.send.buffer.bytes=102400
-unclean.leader.election.enable=false
-zookeeper.session.timeout.ms=18000
+default.replication.factor=3
 EOF
 }
+
+###############################################
+############### MSK Cluster ###################
+###############################################
 
 resource "aws_msk_cluster" "msk_cluster" {
   cluster_name           = var.cluster_name
