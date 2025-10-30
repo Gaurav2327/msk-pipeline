@@ -29,40 +29,40 @@ jobs:
 
       - name: Initialize Terraform
         run: terraform init
-        working-directory: terraform
+        working-directory: terraform/debezium-plugin
 
       - name: Validate Terraform Configuration
         run: terraform validate
-        working-directory: terraform
+        working-directory: terraform/debezium-plugin
 
       - name: Plan Terraform
         run: terraform plan -out=tfplan
-        working-directory: terraform
+        working-directory: terraform/debezium-plugin
 
       - name: Create S3 Bucket
         run: |
           echo "Creating S3 Bucket..."
           terraform apply -target=aws_s3_bucket.msk_resources -auto-approve
           echo "S3 Bucket created successfully"
-        working-directory: terraform
+        working-directory: terraform/debezium-plugin
 
       - name: Download and Process Plugins
         run: |
           echo "Downloading and processing Debezium plugins..."
           terraform apply -target=null_resource.download_and_process -auto-approve
           echo "Plugins downloaded and processed successfully"
-        working-directory: terraform
+        working-directory: terraform/debezium-plugin
 
       - name: Upload Files to S3
         run: |
           echo "Uploading plugin files to S3..."
           terraform apply -target=aws_s3_object.upload_zipped_files -auto-approve
           echo "Files uploaded to S3 successfully"
-        working-directory: terraform
+        working-directory: terraform/debezium-plugin
 
       - name: Apply Remaining Resources
         run: |
           echo "Applying any remaining Terraform resources..."
           terraform apply -auto-approve
           echo "All resources deployed successfully"
-        working-directory: terraform
+        working-directory: terraform/debezium-plugin
