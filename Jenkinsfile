@@ -36,34 +36,7 @@ pipeline {
                 echo "============================================"
             }
         }
-        
-        stage('Verify AWS Access') {
-            steps {
-                script {
-                    echo "============================================"
-                    echo "Verifying AWS credentials..."
-                    echo "============================================"
-                    try {
-                        sh '''
-                            aws sts get-caller-identity
-                            echo "✓ AWS credentials are configured correctly"
-                        '''
-                    } catch (Exception e) {
-                        error """
-                         AWS credentials not found or invalid!
-                        
-                        Please configure AWS credentials using one of these methods:
-                        1. Run 'aws configure' on the Jenkins machine
-                        2. Set up Jenkins credentials (see AWS_CREDENTIALS_SETUP.md)
-                        3. Configure environment variables in Jenkins
-                        
-                        For detailed instructions, see: AWS_CREDENTIALS_SETUP.md
-                        """
-                    }
-                }
-            }
-        }
-        
+
         stage('Validate Terraform') {
             steps {
                 sh '''

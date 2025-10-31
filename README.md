@@ -95,6 +95,8 @@ When `ACTION = apply`, the pipeline creates resources in this order:
 
 Each stage requires approval unless `AUTO_APPROVE = true`.
 
+![Pipeline Creation Flow](images/img.png)
+
 ### Destruction Flow (Destroy)
 
 When `ACTION = destroy`, the pipeline destroys resources in reverse order:
@@ -110,6 +112,9 @@ When `ACTION = destroy`, the pipeline destroys resources in reverse order:
    ↓
 5. Security Groups (sg)
 ```
+
+![Pipeline Destruction Flow](images/img_1.png)
+
 
 ## Directory Structure
 
