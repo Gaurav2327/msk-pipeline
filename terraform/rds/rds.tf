@@ -30,7 +30,8 @@ module "rds_mysql_db" {
     engine = var.db_engine_type
     engine_version = var.db_engine_version
     master_username = var.db_master_username
-    master_password = var.db_master_password
+    # Auto-generate password and store in Secrets Manager
+    manage_master_user_password = true
     instances = {
         main = {
             instance_class = var.db_instance_type

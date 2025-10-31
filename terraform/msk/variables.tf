@@ -77,3 +77,10 @@ variable "encryption_type" {
   description = "Encryption type for the MSK Connector"
   type = string
 }
+
+variable "rds_password" {
+  default = "Admin123"
+  description = "RDS database password (must match the password in terraform/rds/variable.tf)"
+  type = string
+  sensitive = true
+}

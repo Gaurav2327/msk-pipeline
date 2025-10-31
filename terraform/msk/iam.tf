@@ -235,6 +235,15 @@ resource "aws_iam_policy" "msk_policy" {
         Effect   = "Allow"
         Action   = "rds-db:connect"
         Resource = "*"
+      },
+      {
+        Sid      = "secretsManagerPermission"
+        Effect   = "Allow"
+        Action   = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ]
+        Resource = "arn:aws:secretsmanager:us-east-1:*:secret:rds!cluster-*"
       }
     ]
   })

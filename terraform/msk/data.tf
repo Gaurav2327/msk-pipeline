@@ -51,5 +51,14 @@ data "aws_s3_bucket" "plugin_bucket" {
 
 data "aws_rds_cluster" "cdc_rds_cluster" {
   cluster_identifier = "rds-cdc-cluster"
-  
+}
+
+# Get the Secrets Manager secret containing RDS password
+data "aws_secretsmanager_secret" "rds_password" {
+  arn = data.aws_rds_cluster.cdc_rds_cluster.master_user_secret[0].secret_arn
+}
+
+# Get the actual password value from Secrets Manager
+data "aws_secretsmanager_secret_version" "rds_password" {
+  secret_id = data.aws_secretsmanager_secret.rds_password.id
 }
