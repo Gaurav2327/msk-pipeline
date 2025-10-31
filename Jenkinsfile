@@ -20,6 +20,8 @@ pipeline {
         // AWS credentials from Jenkins credential store
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+        // Add Homebrew to PATH for AWS CLI and Terraform
+        PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
     }
     
     stages {
