@@ -27,18 +27,19 @@ The infrastructure is deployed in the following order:
 
 ### Step 1: Add AWS Credentials to Jenkins (5 minutes)
 
-See **[SETUP_CREDENTIALS_IN_JENKINS.md](SETUP_CREDENTIALS_IN_JENKINS.md)** for step-by-step instructions.
+**Add AWS credentials to Jenkins:**
 
-**Quick version:**
 1. Jenkins → Manage Jenkins → Manage Credentials → (global) → Add Credentials
-2. Add credential with:
+2. Add first credential:
    - **Kind**: Secret text
    - **ID**: `aws-access-key-id`
    - **Secret**: Your AWS Access Key ID
-3. Add second credential with:
+3. Add second credential:
    - **Kind**: Secret text
    - **ID**: `aws-secret-access-key`
    - **Secret**: Your AWS Secret Access Key
+
+> 💡 **Getting AWS credentials:** Go to AWS Console → IAM → Users → Your User → Security credentials → Create access key
 
 ### Step 2: Run the Pipeline
 
@@ -53,9 +54,9 @@ See **[SETUP_CREDENTIALS_IN_JENKINS.md](SETUP_CREDENTIALS_IN_JENKINS.md)** for s
 
 ## 📚 Documentation
 
-- **[SETUP_CREDENTIALS_IN_JENKINS.md](SETUP_CREDENTIALS_IN_JENKINS.md)** - Quick guide to add AWS credentials to Jenkins
-- **[JENKINS_AWS_CREDENTIALS_SETUP.md](JENKINS_AWS_CREDENTIALS_SETUP.md)** - Detailed credential setup with troubleshooting
+- **[AWS_MSK_CDC_CONCEPTS.md](AWS_MSK_CDC_CONCEPTS.md)** - Complete guide to AWS MSK, CDC, Debezium, and all concepts
 - **[JENKINS_GUIDE.md](JENKINS_GUIDE.md)** - Complete pipeline reference with execution times and costs
+- **[demo.md](demo.md)** - Step-by-step guide to test CDC functionality with examples
 
 ## Jenkins Pipeline Usage
 
@@ -233,8 +234,9 @@ Modify variables in respective `variables.tf` files:
 1. **State Management**: Terraform state is stored in S3 backend (`terraform-state-bucket-dops`)
 2. **Resource Dependencies**: The pipeline enforces proper ordering to handle dependencies
 3. **Debezium Plugin**: Must be uploaded to S3 before creating MSK Connector (use GitHub Actions workflow)
-4. **Costs**: MSK and RDS resources incur costs - remember to destroy when not needed
-5. **Security**: Update RDS password in `terraform/msk/connector.tf` (currently hardcoded)
+4. **Costs**: MSK and RDS resources incur costs - remember to destroy when not needed (~$210-285/month)
+5. **Security**: RDS password is auto-generated and stored in AWS Secrets Manager - no hardcoded passwords!
+6. **Testing**: See [demo.md](demo.md) for instructions on how to test the CDC pipeline
 
 ## Troubleshooting
 
@@ -244,6 +246,90 @@ Modify variables in respective `variables.tf` files:
 2. **Dependency Errors**: Ensure resources are created in the correct order
 3. **Connector Fails**: Verify Debezium plugin exists in S3 and RDS is accessible
 4. **Security Group Issues**: Ensure VPC and subnets are properly tagged
+
+## Future Enhancements
+
+This project currently implements a basic CDC pipeline from MySQL to MSK. Here are potential enhancements for production use:
+
+### Security Enhancements
+
+1. **IAM Authentication for MSK**
+   - Replace plaintext (port 9092) with IAM authentication (port 9098)
+   - Eliminate need for network-based security
+   - Fine-grained access control per topic/consumer group
+
+2. **TLS Encryption**
+   - Enable in-transit encryption for MSK cluster
+   - Use TLS endpoints (port 9094) instead of plaintext
+   - Secure data transmission between connectors and brokers
+
+3. **Enhanced Secrets Management**
+   - Direct Secrets Manager integration with MSK Connector
+   - Automatic password rotation support
+   - Eliminate need to retrieve secrets in Terraform
+
+### Data Flow Enhancements
+
+4. **Sink Connectors** (MSK → External Systems)
+   - **S3 Sink**: Archive CDC events to S3 for data lake
+   - **Elasticsearch Sink**: Index changes for real-time search
+   - **MongoDB Sink**: Write to NoSQL database
+   - **Lambda Sink**: Trigger serverless functions on changes
+
+5. **AWS Flink Integration** (Stream Processing)
+   - Real-time data transformation and enrichment
+   - Complex event processing (CEP)
+   - Stream joins across multiple topics
+   - Aggregations and windowing operations
+   - **Use Case**: Transform and route CDC events to multiple destinations
+     ```
+     MySQL → MSK → AWS Flink → MongoDB
+     ```
+
+6. **Multi-Database CDC**
+   - Add PostgreSQL source connectors
+   - MongoDB CDC support
+   - Oracle Debezium connector
+   - Multi-source data integration
+
+### Operational Enhancements
+
+7. **Monitoring & Alerting**
+   - CloudWatch custom metrics for CDC lag
+   - SNS alerts for connector failures
+   - Grafana dashboards for real-time monitoring
+   - X-Ray tracing for end-to-end visibility
+
+8. **Auto-Scaling**
+   - MSK broker auto-scaling based on throughput
+   - Connector auto-scaling (when available)
+   - Dynamic partition adjustment
+
+9. **Disaster Recovery**
+   - Cross-region MSK replication
+   - Automated backup and restore procedures
+   - Multi-region active-active setup
+
+10. **Schema Registry**
+    - AWS Glue Schema Registry integration
+    - Avro schema evolution
+    - Schema validation and compatibility checks
+
+### Performance Enhancements
+
+11. **Optimization**
+    - Kafka compression (snappy/lz4)
+    - Batch size tuning
+    - Partition strategy optimization
+    - Connection pooling
+
+12. **Advanced CDC Features**
+    - Incremental snapshots
+    - Signal table for ad-hoc snapshots
+    - Custom transformations (SMT)
+    - Multi-table CDC with different patterns
+
+---
 
 ## Contributing
 
