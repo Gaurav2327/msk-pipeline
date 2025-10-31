@@ -88,7 +88,7 @@ pipeline {
                 script {
                     dir('terraform/rds') {
                         echo "============================================"
-                        echo "🗄️  Step 2/4: Creating RDS Database"
+                        echo " Step 2/4: Creating RDS Database"
                         echo "============================================"
                         
                         sh 'terraform init'
@@ -335,13 +335,6 @@ pipeline {
             3. Check Terraform state is not locked
             4. Review AWS_CREDENTIALS_SETUP.md for credential setup
             5. Check if resources already exist or have dependencies
-            
-            Common issues:
-            - AWS credentials not configured
-            - Insufficient IAM permissions
-            - Terraform state lock
-            - Resource dependencies not met
-            - Network/VPC configuration issues
             """
         }
         always {
