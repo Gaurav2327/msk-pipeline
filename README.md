@@ -1,4 +1,4 @@
-# AWS MSK (Managed Services For Kafka) Pipeline
+ # AWS MSK (Managed Services For Kafka) Pipeline
 
 This repository contains Terraform configurations and Jenkins pipeline for deploying AWS MSK (Managed Streaming for Apache Kafka) with RDS CDC (Change Data Capture) using Debezium connector.
 
@@ -15,11 +15,47 @@ The infrastructure is deployed in the following order:
 
 - Jenkins server with:
   - Terraform v1.11 installed
-  - AWS credentials configured
+  - AWS credentials stored in Jenkins (see Quick Start below)
   - Git plugin
 - AWS Account with appropriate permissions
 - S3 bucket for Terraform state (`terraform-state-bucket-dops`)
 - Debezium plugin uploaded to S3 (use `.github/workflows/cicd.yml` workflow)
+
+## 🚀 Quick Start
+
+**New to this project? Follow these steps:**
+
+### Step 1: Add AWS Credentials to Jenkins (5 minutes)
+
+See **[SETUP_CREDENTIALS_IN_JENKINS.md](SETUP_CREDENTIALS_IN_JENKINS.md)** for step-by-step instructions.
+
+**Quick version:**
+1. Jenkins → Manage Jenkins → Manage Credentials → (global) → Add Credentials
+2. Add credential with:
+   - **Kind**: Secret text
+   - **ID**: `aws-access-key-id`
+   - **Secret**: Your AWS Access Key ID
+3. Add second credential with:
+   - **Kind**: Secret text
+   - **ID**: `aws-secret-access-key`
+   - **Secret**: Your AWS Secret Access Key
+
+### Step 2: Run the Pipeline
+
+1. Go to your Jenkins pipeline job
+2. Click **"Build with Parameters"**
+3. Select **ACTION**: `apply` (to create resources)
+4. Click **"Build"**
+
+**That's it!** Jenkins will use the stored credentials to create your AWS infrastructure.
+
+---
+
+## 📚 Documentation
+
+- **[SETUP_CREDENTIALS_IN_JENKINS.md](SETUP_CREDENTIALS_IN_JENKINS.md)** - Quick guide to add AWS credentials to Jenkins
+- **[JENKINS_AWS_CREDENTIALS_SETUP.md](JENKINS_AWS_CREDENTIALS_SETUP.md)** - Detailed credential setup with troubleshooting
+- **[JENKINS_GUIDE.md](JENKINS_GUIDE.md)** - Complete pipeline reference with execution times and costs
 
 ## Jenkins Pipeline Usage
 
