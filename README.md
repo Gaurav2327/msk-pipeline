@@ -2,6 +2,8 @@
 
 This repository contains Terraform configurations and Jenkins pipeline for deploying AWS MSK (Managed Streaming for Apache Kafka) with RDS CDC (Change Data Capture) using Debezium connector.
 
+![Architecture Diagram](images/cdc.svg)
+
 ## Architecture
 
 The infrastructure is deployed in the following order:
