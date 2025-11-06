@@ -65,7 +65,11 @@ resource "aws_msk_cluster" "msk_cluster" {
       in_cluster = true
     }
   }
-  
+
+  configuration_info {
+    arn      = aws_msk_configuration.cluster_configuration.arn
+    revision = aws_msk_configuration.cluster_configuration.latest_revision
+  }
   
 
   tags = merge(local.default_tags,{
